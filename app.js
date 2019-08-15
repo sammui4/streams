@@ -2,7 +2,7 @@
  * @Author: w
  * @Date: 2019-08-15 09:26:08
  * @LastEditors: w
- * @LastEditTime: 2019-08-15 16:47:35
+ * @LastEditTime: 2019-08-15 18:55:08
  */
 var fs = require('fs');
 var request = require('request');
@@ -35,15 +35,27 @@ function downloadFile(uri, filename, callback) {
   // })
 
   // 复制方案
+  // requests.on('response', function (response) {
+  //   // let temp = path.join(__dirname, 'upgrade_');
+  //   let temp = os.tmpdir();
+  //   let dir = fs.mkdtempSync(temp);
+  //   let paths = path.join(dir, filename);
+  //   requests.pipe(fs.createWriteStream(paths)).on('close', () => {
+  //     var newPath = path.join(__dirname, filename)
+  //     fs.copyFile(paths, newPath, (err) => {
+  //       removeDir(dir);
+  //     });
+
+  //   })
+  // })
+
+  // 更改目录名字（覆盖）
   requests.on('response', function (response) {
-    // let temp = path.join(__dirname, 'upgrade_');
-    let temp = os.tmpdir();
-    let dir = fs.mkdtempSync(temp);
-    let paths = path.join(dir, filename);
+    let paths = path.join(__dirname,latestname);
     requests.pipe(fs.createWriteStream(paths)).on('close', () => {
       var newPath = path.join(__dirname, filename)
       fs.copyFile(paths, newPath, (err) => {
-        removeDir(dir);
+        
       });
 
     })
@@ -52,31 +64,31 @@ function downloadFile(uri, filename, callback) {
 
 var fileUrl = 'http://localhost:888/client/win-unpacked/resources/app.asar';
 var filename = 'app.asar';
-
+var latestname = 'latest.asar'
 downloadFile(fileUrl, filename, () => {
   console.log('下载完毕');
 })
 
 // promise 先序深度优先
-function removeDir(p) {
-  return new Promise((resolve, reject) => { //返回一个promise对象   
-    fs.stat(p, (err, statObj) => { // 异步读取文件判断文件类型 是目录 递归 否则就删除即可
-      if (statObj.isDirectory()) {
-        fs.readdir(p, function (err, dirs) { //读取p下面的文件
-          // 映射路径
-          dirs = dirs.map(dir => path.join(p, dir));
-          // 映射promise
-          dirs = dirs.map(dir => removeDir(dir)); // 递归调用，p下面的文件再次调用判断删除方法
-          // 删除完儿子后 删除自己
-          Promise.all(dirs).then(() => {
-            fs.rmdir(p, resolve);
-          });
-        });
-      } else {
-        fs.unlink(p, resolve);
-      }
+// function removeDir(p) {
+//   return new Promise((resolve, reject) => { //返回一个promise对象   
+//     fs.stat(p, (err, statObj) => { // 异步读取文件判断文件类型 是目录 递归 否则就删除即可
+//       if (statObj.isDirectory()) {
+//         fs.readdir(p, function (err, dirs) { //读取p下面的文件
+//           // 映射路径
+//           dirs = dirs.map(dir => path.join(p, dir));
+//           // 映射promise
+//           dirs = dirs.map(dir => removeDir(dir)); // 递归调用，p下面的文件再次调用判断删除方法
+//           // 删除完儿子后 删除自己
+//           Promise.all(dirs).then(() => {
+//             fs.rmdir(p, resolve);
+//           });
+//         });
+//       } else {
+//         fs.unlink(p, resolve);
+//       }
 
-    })
-  })
+//     })
+//   })
 
-}
+// }
