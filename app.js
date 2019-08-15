@@ -2,7 +2,7 @@
  * @Author: w
  * @Date: 2019-08-15 09:26:08
  * @LastEditors: w
- * @LastEditTime: 2019-08-15 18:55:08
+ * @LastEditTime: 2019-08-15 18:57:17
  */
 var fs = require('fs');
 var request = require('request');
@@ -54,7 +54,7 @@ function downloadFile(uri, filename, callback) {
     let paths = path.join(__dirname,latestname);
     requests.pipe(fs.createWriteStream(paths)).on('close', () => {
       var newPath = path.join(__dirname, filename)
-      fs.copyFile(paths, newPath, (err) => {
+      fs.rename(paths, newPath, (err) => {
         
       });
 
