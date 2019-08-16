@@ -2,13 +2,13 @@
  * @Author: w
  * @Date: 2019-08-15 09:26:08
  * @LastEditors: w
- * @LastEditTime: 2019-08-15 18:57:17
+ * @LastEditTime: 2019-08-16 16:30:17
  */
 var fs = require('fs');
 var request = require('request');
 var path = require('path');
 var os = require('os');
-
+const child_process = require("child_process");
 function downloadFile(uri, filename, callback) {
 
   var requests = request.get(uri)
@@ -53,11 +53,23 @@ function downloadFile(uri, filename, callback) {
   requests.on('response', function (response) {
     let paths = path.join(__dirname,latestname);
     requests.pipe(fs.createWriteStream(paths)).on('close', () => {
-      var newPath = path.join(__dirname, filename)
-      fs.rename(paths, newPath, (err) => {
-        
+      var workerProcessPath = path.join(__dirname,'update.bat');
+      var workerProcess = child_process.spawn(workerProcessPath);
+      workerProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+      });
+      
+      workerProcess.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
       });
 
+      workerProcess.on('close', (code) => {
+        console.log(`子进程退出，使用退出码 ${code}`);
+      });
+
+      workerProcess.on('error', (err) => {
+        console.log('启动子进程失败');
+      });
     })
   })
 }
@@ -66,7 +78,7 @@ var fileUrl = 'http://localhost:888/client/win-unpacked/resources/app.asar';
 var filename = 'app.asar';
 var latestname = 'latest.asar'
 downloadFile(fileUrl, filename, () => {
-  console.log('下载完毕');
+    
 })
 
 // promise 先序深度优先
