@@ -54,13 +54,14 @@ function downloadFile(uri, filename, callback) {
     let paths = path.join(__dirname,latestname);
     requests.pipe(fs.createWriteStream(paths)).on('close', () => {
       var workerProcessPath = path.join(__dirname,'update.bat');
-      var workerProcess = child_process.spawn(workerProcessPath);
+      // var workerProcess = child_process.spawn(workerProcessPath);
+      var workerProcess = child_process.spawn('cmd.exe', ['/c', workerProcessPath])
       workerProcess.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
       });
       
       workerProcess.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
+        console.log(`stderr`);
       });
 
       workerProcess.on('close', (code) => {
